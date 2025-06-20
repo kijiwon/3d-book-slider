@@ -10,6 +10,7 @@ import {
   Skeleton,
   SkeletonHelper,
   SkinnedMesh,
+  SRGBColorSpace,
   Uint16BufferAttribute,
   Vector3,
 } from "three";
@@ -86,6 +87,7 @@ export const Page = ({ number, front, back, ...props }) => {
       ? [`textures/book-cover-roughness.jpg`]
       : []),
   ]);
+  picture.colorSpace = picture2.colorSpace = SRGBColorSpace; // picture과 picture2를 동시에 srgb로 변경
 
   const manualSkinnedMesh = useMemo(() => {
     const bones = [];
@@ -138,7 +140,7 @@ export const Page = ({ number, front, back, ...props }) => {
     return mesh;
   }, []);
 
-  useHelper(skinnedMeshRef, SkeletonHelper, "red");
+  //   useHelper(skinnedMeshRef, SkeletonHelper, "red");
   useFrame(() => {
     if (!skinnedMeshRef.current) {
       return;
