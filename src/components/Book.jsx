@@ -1,18 +1,13 @@
-import { pages } from "./UI";
+import { pageAtom, pages } from "./UI";
 import { Page } from "./Page";
+import { useAtom } from "jotai";
 export const Book = ({ ...props }) => {
+  const [page] = useAtom(pageAtom);
   return (
     <group {...props}>
-      {[...pages].map((pageData, index) =>
-        index === 0 ? ( // 첫 번째 페이지만 렌더링
-          <Page
-            position-x={index * 0.15}
-            key={index}
-            number={index}
-            {...pageData}
-          />
-        ) : null
-      )}
+      {[...pages].map((pageData, index) => (
+        <Page key={index} page={page} number={index} {...pageData} />
+      ))}
     </group>
   );
 };

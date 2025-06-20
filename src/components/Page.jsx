@@ -82,7 +82,7 @@ pages.forEach((page) => {
   useTexture.preload(`/textures/book-cover-roughness.jpg`);
 });
 
-export const Page = ({ number, front, back, ...props }) => {
+export const Page = ({ number, front, back, page, ...props }) => {
   const group = useRef();
   const skinnedMeshRef = useRef();
 
@@ -156,7 +156,11 @@ export const Page = ({ number, front, back, ...props }) => {
 
   return (
     <group {...props} ref={group}>
-      <primitive object={manualSkinnedMesh} ref={skinnedMeshRef} />
+      <primitive
+        object={manualSkinnedMesh}
+        position-z={-number * PAGE_DEPTH + page * PAGE_DEPTH}
+        ref={skinnedMeshRef}
+      />
     </group>
   );
 };
