@@ -1,4 +1,4 @@
-import { useHelper } from "@react-three/drei";
+import { useHelper, useTexture } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import {
@@ -13,14 +13,15 @@ import {
   Uint16BufferAttribute,
   Vector3,
 } from "three";
-import { degToRad } from "three/src/math/MathUtils.js";
+
+import { pages } from "./UI";
 
 // 페이지 크기
 const PAGE_WIDTH = 1.28;
 const PAGE_HEIGHT = 1.71; // 4:3 종횡비
 const PAGE_DEPTH = 0.003;
 // skin이 걸릴 세그먼트 수
-const PAGE_SEGMENTS = 5; // 페이지를 가로로 5등분
+const PAGE_SEGMENTS = 30; // 페이지를 가로로 30등분
 const SEGMENT_WIDTH = PAGE_WIDTH / PAGE_SEGMENTS; // 각 페이지 geometry가 동일함(런타임때 계산 가능)
 
 const pageGeometry = new BoxGeometry(
@@ -72,17 +73,19 @@ const pageMaterials = [
   new MeshStandardMaterial({
     color: whiteColor,
   }),
-  new MeshStandardMaterial({
-    color: "pink",
-  }),
-  new MeshStandardMaterial({
-    color: "blue",
-  }),
 ];
 
 export const Page = ({ number, front, back, ...props }) => {
   const group = useRef();
   const skinnedMeshRef = useRef();
+
+  const [picture, picture2, pictureRoughness] = useTexture([
+    `/textures/${front}.jpg`,
+    `/textures/${back}.jpg`,
+    ...(number === 0 || number === pages.length - 1
+      ? [`textures/book-cover-roughness.jpg`]
+      : []),
+  ]);
 
   const manualSkinnedMesh = useMemo(() => {
     const bones = [];
@@ -101,7 +104,31 @@ export const Page = ({ number, front, back, ...props }) => {
     }
     const skeleton = new Skeleton(bones);
 
-    const materials = pageMaterials;
+    const materials = [
+      ...pageMaterials,
+      new MeshStandardMaterial({
+        color: whiteColor,
+        map: picture,
+        ...(number === 0
+          ? {
+              roughnessMap: pictureRoughness,
+            }
+          : {
+              roughness: 0.1,
+            }),
+      }),
+      new MeshStandardMaterial({
+        color: whiteColor,
+        map: picture2,
+        ...(number === pages.length - 1
+          ? {
+              roughnessMap: pictureRoughness,
+            }
+          : {
+              roughness: 0.1,
+            }),
+      }),
+    ];
     const mesh = new SkinnedMesh(pageGeometry, materials);
     mesh.castShadow = true;
     mesh.receiveShadow = true;
@@ -117,9 +144,6 @@ export const Page = ({ number, front, back, ...props }) => {
       return;
     }
     const bones = skinnedMeshRef.current.skeleton.bones;
-    bones[2].rotation.y = degToRad(40);
-    bones[4].rotation.y = degToRad(-40);
-    bones[4].rotation.x = degToRad(10);
   });
 
   return (
