@@ -6,6 +6,7 @@ import {
   BoxGeometry,
   Color,
   Float32BufferAttribute,
+  MathUtils,
   MeshStandardMaterial,
   Skeleton,
   SkeletonHelper,
@@ -16,6 +17,10 @@ import {
 } from "three";
 
 import { pages } from "./UI";
+import { degToRad } from "three/src/math/MathUtils.js";
+import { easing } from "maath";
+
+const easingFactor = 0.5;
 
 // 페이지 크기
 const PAGE_WIDTH = 1.28;
@@ -82,7 +87,15 @@ pages.forEach((page) => {
   useTexture.preload(`/textures/book-cover-roughness.jpg`);
 });
 
-export const Page = ({ number, front, back, page, ...props }) => {
+export const Page = ({
+  number,
+  front,
+  back,
+  page,
+  opened,
+  bookClosed,
+  ...props
+}) => {
   const group = useRef();
   const skinnedMeshRef = useRef();
 
@@ -147,11 +160,25 @@ export const Page = ({ number, front, back, page, ...props }) => {
   }, []);
 
   //   useHelper(skinnedMeshRef, SkeletonHelper, "red");
-  useFrame(() => {
+  useFrame((_, delta) => {
     if (!skinnedMeshRef.current) {
       return;
     }
+    let targetRotation = opened ? -Math.PI / 2 : Math.PI / 2;
+    if (!bookClosed) {
+      // 페이지 충돌 조절
+      targetRotation += degToRad(number * 0.5);
+    }
+
     const bones = skinnedMeshRef.current.skeleton.bones;
+    // 페이지 회전 애니메이션
+    easing.dampAngle(
+      bones[0].rotation,
+      "y", // 회전키
+      targetRotation,
+      easingFactor,
+      delta
+    );
   });
 
   return (
