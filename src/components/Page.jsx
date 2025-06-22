@@ -184,6 +184,15 @@ export const Page = ({
       let rotationAngle =
         insideCurveStrength * insideCurveIntensity * targetRotation -
         outsideCurveStrength * outsideCurveIntensity * targetRotation;
+
+      if (bookClosed) {
+        if (i === 0) {
+          rotationAngle = targetRotation;
+        } else {
+          rotationAngle = 0;
+        }
+      }
+
       // 페이지 회전 애니메이션
       easing.dampAngle(
         target.rotation,
