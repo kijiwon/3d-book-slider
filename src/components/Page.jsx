@@ -21,6 +21,8 @@ import { easing } from "maath";
 
 const easingFactor = 0.5;
 const insideCurveStrength = 0.18;
+const outsideCurveStrength = 0.05;
+const turningCurveStrength = 0.09;
 
 // 페이지 크기
 const PAGE_WIDTH = 1.28;
@@ -177,8 +179,11 @@ export const Page = ({
       const target = i === 0 ? group.current : bones[i];
 
       const insideCurveIntensity = i < 8 ? Math.sin(i * 0.2 + 0.25) : 0;
+      const outsideCurveIntensity = i >= 8 ? Math.cos(i * 0.3 + 0.25) : 0;
+
       let rotationAngle =
-        insideCurveStrength * insideCurveIntensity * targetRotation;
+        insideCurveStrength * insideCurveIntensity * targetRotation -
+        outsideCurveStrength * outsideCurveIntensity * targetRotation;
       // 페이지 회전 애니메이션
       easing.dampAngle(
         target.rotation,
