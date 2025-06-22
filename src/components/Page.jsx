@@ -6,7 +6,6 @@ import {
   BoxGeometry,
   Color,
   Float32BufferAttribute,
-  MathUtils,
   MeshStandardMaterial,
   Skeleton,
   SkeletonHelper,
@@ -160,6 +159,7 @@ export const Page = ({
   }, []);
 
   //   useHelper(skinnedMeshRef, SkeletonHelper, "red");
+
   useFrame((_, delta) => {
     if (!skinnedMeshRef.current) {
       return;
@@ -171,22 +171,27 @@ export const Page = ({
     }
 
     const bones = skinnedMeshRef.current.skeleton.bones;
-    // 페이지 회전 애니메이션
-    easing.dampAngle(
-      bones[0].rotation,
-      "y", // 회전키
-      targetRotation,
-      easingFactor,
-      delta
-    );
+
+    for (let i = 0; i < bones.length; i++) {
+      const target = i === 0 ? group.current : bones[i];
+
+      // 페이지 회전 애니메이션
+      easing.dampAngle(
+        target.rotation,
+        "y", // 회전키
+        targetRotation,
+        easingFactor,
+        delta
+      );
+    }
   });
 
   return (
     <group {...props} ref={group}>
       <primitive
         object={manualSkinnedMesh}
-        position-z={-number * PAGE_DEPTH + page * PAGE_DEPTH}
         ref={skinnedMeshRef}
+        position-z={-number * PAGE_DEPTH + page * PAGE_DEPTH}
       />
     </group>
   );
