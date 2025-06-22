@@ -20,6 +20,7 @@ import { degToRad } from "three/src/math/MathUtils.js";
 import { easing } from "maath";
 
 const easingFactor = 0.5;
+const insideCurveStrength = 0.18;
 
 // 페이지 크기
 const PAGE_WIDTH = 1.28;
@@ -175,11 +176,14 @@ export const Page = ({
     for (let i = 0; i < bones.length; i++) {
       const target = i === 0 ? group.current : bones[i];
 
+      const insideCurveIntensity = i < 8 ? Math.sin(i * 0.2 + 0.25) : 0;
+      let rotationAngle =
+        insideCurveStrength * insideCurveIntensity * targetRotation;
       // 페이지 회전 애니메이션
       easing.dampAngle(
         target.rotation,
         "y", // 회전키
-        targetRotation,
+        rotationAngle,
         easingFactor,
         delta
       );
