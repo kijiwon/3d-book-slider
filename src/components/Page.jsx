@@ -176,7 +176,7 @@ export const Page = ({
     return mesh;
   }, []);
 
-  useHelper(skinnedMeshRef, SkeletonHelper, "red");
+  //   useHelper(skinnedMeshRef, SkeletonHelper, "red");
 
   useFrame((_, delta) => {
     if (!skinnedMeshRef.current) {
