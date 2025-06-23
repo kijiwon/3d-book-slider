@@ -41,6 +41,7 @@ const pageGeometry = new BoxGeometry(
 );
 
 pageGeometry.translate(PAGE_WIDTH / 2, 0, 0);
+
 const position = pageGeometry.attributes.position;
 const vertex = new Vector3();
 const skinIndexes = [];
@@ -100,6 +101,8 @@ export const Page = ({
 }) => {
   const group = useRef();
   const skinnedMeshRef = useRef();
+  const turnedAt = useRef(0);
+  const lastOpened = useRef(opened);
 
   const [picture, picture2, pictureRoughness] = useTexture([
     `/textures/${front}.jpg`,
@@ -161,13 +164,22 @@ export const Page = ({
     return mesh;
   }, []);
 
-  //   useHelper(skinnedMeshRef, SkeletonHelper, "red");
+  useHelper(skinnedMeshRef, SkeletonHelper, "red");
 
   useFrame((_, delta) => {
     if (!skinnedMeshRef.current) {
       return;
     }
+
+    if (lastOpened.current !== opened) {
+      turnedAt.current = new Date();
+      lastOpened.current = opened;
+    }
+
+    let turningTime = Math.min(400, new Date() - turnedAt.current) / 400;
+
     let targetRotation = opened ? -Math.PI / 2 : Math.PI / 2;
+
     if (!bookClosed) {
       // 페이지 충돌 조절
       targetRotation += degToRad(number * 0.5);
@@ -179,11 +191,14 @@ export const Page = ({
       const target = i === 0 ? group.current : bones[i];
 
       const insideCurveIntensity = i < 8 ? Math.sin(i * 0.2 + 0.25) : 0;
-      const outsideCurveIntensity = i >= 8 ? Math.cos(i * 0.3 + 0.25) : 0;
+      const outsideCurveIntensity = i >= 8 ? Math.cos(i * 0.3 + 0.09) : 0;
+      const turningIntensity =
+        Math.sin(i * Math.PI * (1 / bones.length)) * turningTime;
 
       let rotationAngle =
         insideCurveStrength * insideCurveIntensity * targetRotation -
-        outsideCurveStrength * outsideCurveIntensity * targetRotation;
+        outsideCurveStrength * outsideCurveIntensity * targetRotation +
+        turningCurveStrength * turningIntensity * targetRotation;
 
       if (bookClosed) {
         if (i === 0) {
