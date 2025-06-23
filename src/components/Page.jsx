@@ -1,6 +1,6 @@
-import { useHelper, useTexture } from "@react-three/drei";
+import { useCursor, useHelper, useTexture } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   Bone,
   BoxGeometry,
@@ -15,9 +15,10 @@ import {
   Vector3,
 } from "three";
 
-import { pages } from "./UI";
+import { pageAtom, pages } from "./UI";
 import { degToRad } from "three/src/math/MathUtils.js";
 import { easing } from "maath";
+import { useAtom } from "jotai";
 
 const easingFactor = 0.5;
 const easingFactorFold = 0.3;
@@ -104,6 +105,10 @@ export const Page = ({
   const skinnedMeshRef = useRef();
   const turnedAt = useRef(0);
   const lastOpened = useRef(opened);
+
+  const [_, setPage] = useAtom(pageAtom);
+  const [highlighted, setHighlighted] = useState(false);
+  useCursor(highlighted);
 
   const [picture, picture2, pictureRoughness] = useTexture([
     `/textures/${front}.jpg`,
@@ -236,7 +241,23 @@ export const Page = ({
   });
 
   return (
-    <group {...props} ref={group}>
+    <group
+      {...props}
+      ref={group}
+      onPointerEnter={(e) => {
+        e.stopPropagation();
+        setHighlighted(true);
+      }}
+      onPointerLeave={(e) => {
+        e.stopPropagation();
+        setHighlight(false);
+      }}
+      onClick={(e) => {
+        e.stopPropagation();
+        setPage(opened ? number : number + 1);
+        setHighlighted(false);
+      }}
+    >
       <primitive
         object={manualSkinnedMesh}
         ref={skinnedMeshRef}
