@@ -6,6 +6,7 @@ import {
   BoxGeometry,
   Color,
   Float32BufferAttribute,
+  MathUtils,
   MeshStandardMaterial,
   Skeleton,
   SkeletonHelper,
@@ -70,6 +71,7 @@ pageGeometry.setAttribute(
 );
 
 const whiteColor = new Color("white");
+const emissiveColor = new Color("orange"); // 발광빛
 
 const pageMaterials = [
   new MeshStandardMaterial({
@@ -148,6 +150,8 @@ export const Page = ({
           : {
               roughness: 0.1,
             }),
+        emissive: emissiveColor,
+        emissiveIntensity: 0,
       }),
       new MeshStandardMaterial({
         color: whiteColor,
@@ -159,6 +163,8 @@ export const Page = ({
           : {
               roughness: 0.1,
             }),
+        emissive: emissiveColor,
+        emissiveIntensity: 0,
       }),
     ];
     const mesh = new SkinnedMesh(pageGeometry, materials);
@@ -176,6 +182,15 @@ export const Page = ({
     if (!skinnedMeshRef.current) {
       return;
     }
+
+    // emissiveIntensity 조절
+    const emissiveIntensity = highlighted ? 0.22 : 0;
+    skinnedMeshRef.current.material[4].emissiveIntensity =
+      skinnedMeshRef.current.material[5].emissiveIntensity = MathUtils.lerp(
+        skinnedMeshRef.current.material[4].emissiveIntensity,
+        emissiveIntensity,
+        0.1
+      );
 
     if (lastOpened.current !== opened) {
       turnedAt.current = new Date();
@@ -250,7 +265,7 @@ export const Page = ({
       }}
       onPointerLeave={(e) => {
         e.stopPropagation();
-        setHighlight(false);
+        setHighlighted(false);
       }}
       onClick={(e) => {
         e.stopPropagation();
