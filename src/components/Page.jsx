@@ -21,9 +21,9 @@ import { easing } from "maath";
 
 const easingFactor = 0.5;
 const easingFactorFold = 0.3;
-const insideCurveStrength = 0.18;
-const outsideCurveStrength = 0.05;
-const turningCurveStrength = 0.09;
+const insideCurveStrength = 0.12;
+const outsideCurveStrength = 0.06;
+const turningCurveStrength = 0.02;
 
 // 페이지 크기
 const PAGE_WIDTH = 1.28;
@@ -183,7 +183,7 @@ export const Page = ({
 
     if (!bookClosed) {
       // 페이지 충돌 조절
-      targetRotation += degToRad(number * 0.5);
+      targetRotation += degToRad(number * 0.8);
     }
 
     const bones = skinnedMeshRef.current.skeleton.bones;
@@ -201,7 +201,11 @@ export const Page = ({
         outsideCurveStrength * outsideCurveIntensity * targetRotation +
         turningCurveStrength * turningIntensity * targetRotation;
 
-      let foldRotationAngle = degToRad(Math.sin(targetRotation));
+      let foldRotationAngle = degToRad(Math.sin(targetRotation)) * degToRad(2);
+      const foldIntensity =
+        i > 8
+          ? Math.sin(i * Math.PI * (1 / bones.length) - 0.5) * turningTime
+          : 0;
 
       if (bookClosed) {
         if (i === 0) {
@@ -220,11 +224,6 @@ export const Page = ({
         easingFactor,
         delta
       );
-
-      const foldIntensity =
-        i > 8
-          ? Math.sin(i * Math.PI * (1 / bones.length) - 0.5) * turningTime
-          : 0;
 
       easing.dampAngle(
         target.rotation,
