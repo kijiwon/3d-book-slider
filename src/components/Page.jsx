@@ -20,6 +20,7 @@ import { degToRad } from "three/src/math/MathUtils.js";
 import { easing } from "maath";
 
 const easingFactor = 0.5;
+const easingFactorFold = 0.3;
 const insideCurveStrength = 0.18;
 const outsideCurveStrength = 0.05;
 const turningCurveStrength = 0.09;
@@ -49,7 +50,7 @@ const skinWeights = [];
 
 for (let i = 0; i < position.count; i++) {
   // all vertices
-  vertex.fromBufferAttribute(position, 1);
+  vertex.fromBufferAttribute(position, i);
   const x = vertex.x; // vertex의 x 좌표
 
   const skinIndex = Math.max(0, Math.floor(x / SEGMENT_WIDTH)); // 영향을 받는 skin을 파악
@@ -200,9 +201,12 @@ export const Page = ({
         outsideCurveStrength * outsideCurveIntensity * targetRotation +
         turningCurveStrength * turningIntensity * targetRotation;
 
+      let foldRotationAngle = degToRad(Math.sin(targetRotation));
+
       if (bookClosed) {
         if (i === 0) {
           rotationAngle = targetRotation;
+          foldRotationAngle = 0;
         } else {
           rotationAngle = 0;
         }
@@ -214,6 +218,19 @@ export const Page = ({
         "y", // 회전키
         rotationAngle,
         easingFactor,
+        delta
+      );
+
+      const foldIntensity =
+        i > 8
+          ? Math.sin(i * Math.PI * (1 / bones.length) - 0.5) * turningTime
+          : 0;
+
+      easing.dampAngle(
+        target.rotation,
+        "x",
+        foldRotationAngle * foldIntensity,
+        easingFactorFold,
         delta
       );
     }
